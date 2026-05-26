@@ -1,23 +1,23 @@
-import { describe, test, expect, beforeAll, afterAll, mock, beforeEach } from 'bun:test';
+import { describe, test, expect, beforeAll, afterAll, beforeEach, vi } from 'vitest';
 import fs from 'fs/promises';
 import path from 'path';
 import { Readable } from 'stream';
+import { fileURLToPath } from 'url';
 
 // Mock prisma before importing FileService
-mock.module('../../../prisma', () => ({
+vi.mock('../../../prisma', () => ({
   prisma: {
     attachments: {
-      create: mock(() => Promise.resolve({ id: 1 })),
-      findFirst: mock(() => Promise.resolve(null)),
-      delete: mock(() => Promise.resolve()),
+      create: vi.fn(() => Promise.resolve({ id: 1 })),
+      findFirst: vi.fn(() => Promise.resolve(null)),
+      delete: vi.fn(() => Promise.resolve()),
     }
   }
 }));
 
 // Mock getGlobalConfig to return local storage config
-const TEMP_UPLOAD_DIR = path.join(import.meta.dir, '../../__fixtures__/uploads');
-mock.module('../../../routerTrpc/config', () => ({
-  getGlobalConfig: mock(() => Promise.resolve({
+vi.mock('../../../routerTrpc/config', () => ({
+  getGlobalConfig: vi.fn(() => Promise.resolve({
     objectStorage: 'local',
     localCustomPath: '/',
     s3Endpoint: '',
@@ -29,20 +29,24 @@ mock.module('../../../routerTrpc/config', () => ({
   }))
 }));
 
-// Mock UPLOAD_FILE_PATH
-mock.module('@shared/lib/pathConstant', () => ({
-  UPLOAD_FILE_PATH: TEMP_UPLOAD_DIR,
-  TEMP_PATH: path.join(TEMP_UPLOAD_DIR, 'temp'),
+// Mock UPLOAD_FILE_PATH with absolute path
+vi.mock('@shared/lib/pathConstant', () => ({
+  UPLOAD_FILE_PATH: '/tmp/blinko-test-uploads',
+  TEMP_PATH: '/tmp/blinko-test-uploads/temp',
 }));
 
 // Mock cache
-mock.module('@shared/lib/cache', () => ({
+vi.mock('@shared/lib/cache', () => ({
   cache: {
-    wrap: mock(async (_key: string, fn: () => Promise<any>) => fn()),
+    wrap: vi.fn(async (_key: string, fn: () => Promise<any>) => fn()),
   }
 }));
 
-import { FileService, sanitizeUploadFileName } from '../../../lib/files';
+import { FileService } from '../../../lib/files';
+import { sanitizeUploadFileName } from '../../../lib/utils/sanitize';
+
+// Use the same path as in the mock for test operations
+const TEST_UPLOAD_DIR = '/tmp/blinko-test-uploads';
 
 function createReadableStream(content: string | Buffer): ReadableStream {
   const buf = typeof content === 'string' ? Buffer.from(content) : content;
@@ -57,18 +61,18 @@ function createReadableStream(content: string | Buffer): ReadableStream {
 
 describe('File Upload — Full Flow', () => {
   beforeAll(async () => {
-    await fs.mkdir(TEMP_UPLOAD_DIR, { recursive: true });
+    await fs.mkdir(TEST_UPLOAD_DIR, { recursive: true });
   });
 
   afterAll(async () => {
-    await fs.rm(TEMP_UPLOAD_DIR, { recursive: true, force: true });
+    await fs.rm(TEST_UPLOAD_DIR, { recursive: true, force: true });
   });
 
   beforeEach(async () => {
     // Clean upload dir between tests
-    const files = await fs.readdir(TEMP_UPLOAD_DIR).catch(() => []);
+    const files = await fs.readdir(TEST_UPLOAD_DIR).catch(() => []);
     for (const file of files) {
-      await fs.rm(path.join(TEMP_UPLOAD_DIR, file), { recursive: true, force: true }).catch(() => {});
+      await fs.rm(path.join(TEST_UPLOAD_DIR, file), { recursive: true, force: true }).catch(() => {});
     }
   });
 
@@ -89,7 +93,7 @@ describe('File Upload — Full Flow', () => {
 
     // Verify file actually written to disk
     const relativePath = result.filePath.replace('/api/file/', '');
-    const fullPath = path.join(TEMP_UPLOAD_DIR, relativePath);
+    const fullPath = path.join(TEST_UPLOAD_DIR, relativePath);
     const content = await fs.readFile(fullPath, 'utf-8');
     expect(content).toBe('hello world');
   });
@@ -109,7 +113,7 @@ describe('File Upload — Full Flow', () => {
 
     // Verify file written
     const relativePath = result.filePath.replace('/api/file/', '');
-    const fullPath = path.join(TEMP_UPLOAD_DIR, relativePath);
+    const fullPath = path.join(TEST_UPLOAD_DIR, relativePath);
     const stat = await fs.stat(fullPath);
     expect(stat.isFile()).toBe(true);
   });
@@ -133,7 +137,7 @@ describe('File Upload — Full Flow', () => {
 
     // Verify file actually exists on disk
     const relativePath = result.filePath.replace('/api/file/', '');
-    const fullPath = path.join(TEMP_UPLOAD_DIR, relativePath);
+    const fullPath = path.join(TEST_UPLOAD_DIR, relativePath);
     const stat = await fs.stat(fullPath);
     expect(stat.isFile()).toBe(true);
   });
@@ -156,7 +160,7 @@ describe('File Upload — Full Flow', () => {
     expect(result.filePath).not.toContain('|');
 
     const relativePath = result.filePath.replace('/api/file/', '');
-    const fullPath = path.join(TEMP_UPLOAD_DIR, relativePath);
+    const fullPath = path.join(TEST_UPLOAD_DIR, relativePath);
     const stat = await fs.stat(fullPath);
     expect(stat.isFile()).toBe(true);
   });
@@ -178,7 +182,7 @@ describe('File Upload — Full Flow', () => {
 
     // Filename should be truncated but still valid
     const relativePath = result.filePath.replace('/api/file/', '');
-    const fullPath = path.join(TEMP_UPLOAD_DIR, relativePath);
+    const fullPath = path.join(TEST_UPLOAD_DIR, relativePath);
     const stat = await fs.stat(fullPath);
     expect(stat.isFile()).toBe(true);
 
@@ -202,7 +206,7 @@ describe('File Upload — Full Flow', () => {
     expect(result.filePath).not.toMatch(/[\x00-\x1f\x7f]/);
 
     const relativePath = result.filePath.replace('/api/file/', '');
-    const fullPath = path.join(TEMP_UPLOAD_DIR, relativePath);
+    const fullPath = path.join(TEST_UPLOAD_DIR, relativePath);
     const stat = await fs.stat(fullPath);
     expect(stat.isFile()).toBe(true);
   });
@@ -221,7 +225,7 @@ describe('File Upload — Full Flow', () => {
     expect(result.filePath).toContain('.pdf');
 
     const relativePath = result.filePath.replace('/api/file/', '');
-    const fullPath = path.join(TEMP_UPLOAD_DIR, relativePath);
+    const fullPath = path.join(TEST_UPLOAD_DIR, relativePath);
     const stat = await fs.stat(fullPath);
     expect(stat.isFile()).toBe(true);
   });
@@ -239,7 +243,7 @@ describe('File Upload — Full Flow', () => {
 
     // Simulate what the file serving route does
     const relativePath = result.filePath.replace('/api/file/', '');
-    const fullPath = path.join(TEMP_UPLOAD_DIR, relativePath);
+    const fullPath = path.join(TEST_UPLOAD_DIR, relativePath);
     const readBack = await fs.readFile(fullPath, 'utf-8');
     expect(readBack).toBe(originalContent);
   });

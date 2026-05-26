@@ -15,7 +15,10 @@
     "tauri:build:desktop:local": "tauri build --no-bundle",
     "tauri:android:dev": "tauri android dev --host",
     "tauri:android:build": "tauri android build",
-    "tauri:desktop:build": "tauri build"
+    "tauri:desktop:build": "tauri build",
+    "test": "vitest --run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest --coverage"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

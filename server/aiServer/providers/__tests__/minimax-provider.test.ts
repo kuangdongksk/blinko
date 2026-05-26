@@ -1,46 +1,47 @@
-import { describe, it, expect, mock, beforeEach } from 'bun:test';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 // Mock the proxy module before importing LLMProvider
-mock.module('@server/lib/proxy', () => ({
+vi.mock('@server/lib/proxy', () => ({
   fetchWithProxy: async () => fetch
 }));
 
 // Mock @ai-sdk/openai
 const mockLanguageModel = { modelId: 'MiniMax-M2.5' };
-const mockCreateOpenAI = mock((config: any) => ({
-  languageModel: mock((modelKey: string) => mockLanguageModel)
+const mockCreateOpenAI = vi.fn((config: any) => ({
+  languageModel: vi.fn((modelKey: string) => mockLanguageModel)
 }));
 
-mock.module('@ai-sdk/openai', () => ({
+vi.mock('@ai-sdk/openai', () => ({
   createOpenAI: mockCreateOpenAI
 }));
 
 // Mock other SDK modules to avoid import errors
-mock.module('@ai-sdk/anthropic', () => ({
-  createAnthropic: mock(() => ({ languageModel: mock(() => ({})) }))
+vi.mock('@ai-sdk/anthropic', () => ({
+  createAnthropic: vi.fn(() => ({ languageModel: vi.fn(() => ({})) }))
 }));
-mock.module('@ai-sdk/google', () => ({
-  createGoogleGenerativeAI: mock(() => ({ languageModel: mock(() => ({})) }))
+vi.mock('@ai-sdk/google', () => ({
+  createGoogleGenerativeAI: vi.fn(() => ({ languageModel: vi.fn(() => ({})) }))
 }));
-mock.module('ollama-ai-provider', () => ({
-  createOllama: mock(() => ({ languageModel: mock(() => ({})) }))
+vi.mock('ollama-ai-provider', () => ({
+  createOllama: vi.fn(() => ({ languageModel: vi.fn(() => ({})) }))
 }));
-mock.module('@ai-sdk/deepseek', () => ({
-  createDeepSeek: mock(() => ({ languageModel: mock(() => ({})) }))
+vi.mock('@ai-sdk/deepseek', () => ({
+  createDeepSeek: vi.fn(() => ({ languageModel: vi.fn(() => ({})) }))
 }));
-mock.module('@openrouter/ai-sdk-provider', () => ({
-  createOpenRouter: mock(() => ({ languageModel: mock(() => ({})) }))
+vi.mock('@openrouter/ai-sdk-provider', () => ({
+  createOpenRouter: vi.fn(() => ({ languageModel: vi.fn(() => ({})) }))
 }));
-mock.module('@ai-sdk/xai', () => ({
-  createXai: mock(() => ({ languageModel: mock(() => ({})) }))
+vi.mock('@ai-sdk/xai', () => ({
+  createXai: vi.fn(() => ({ languageModel: vi.fn(() => ({})) }))
 }));
-mock.module('@ai-sdk/azure', () => ({
-  createAzure: mock(() => ({ languageModel: mock(() => ({})) }))
+vi.mock('@ai-sdk/azure', () => ({
+  createAzure: vi.fn(() => ({ languageModel: vi.fn(() => ({})) }))
 }));
 
 describe('MiniMax LLM Provider', () => {
   beforeEach(() => {
     mockCreateOpenAI.mockClear();
+    vi.clearAllMocks();
   });
 
   it('should handle minimax provider case', async () => {

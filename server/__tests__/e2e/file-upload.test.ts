@@ -7,27 +7,24 @@
  *   - JWT_SECRET configured in database
  *
  * Run:
- *   bun test server/__tests__/e2e/file-upload.test.ts
+ *   pnpm test server/__tests__/e2e/file-upload.test.ts
  */
-import { describe, test, expect, beforeAll } from 'bun:test';
+import { describe, test, expect, beforeAll } from 'vitest';
 import jwt from 'jsonwebtoken';
-import fs from 'fs/promises';
-import path from 'path';
 
 const BASE_URL = 'http://localhost:1111';
 let AUTH_TOKEN = '';
 
-beforeAll(async () => {
-  // Verify server is running
+async function checkServerRunning(): Promise<boolean> {
   try {
     const health = await fetch(`${BASE_URL}/health`);
-    if (!health.ok) throw new Error('Server not healthy');
+    return health.ok;
   } catch {
-    throw new Error(
-      'Backend server not running. Start it with: cd server && bun --env-file ../.env --watch index.ts'
-    );
+    return false;
   }
+}
 
+async function setupAuthToken(): Promise<void> {
   // Read JWT secret from database
   const { PrismaClient } = await import('@prisma/client');
   const prisma = new PrismaClient();
@@ -44,11 +41,11 @@ beforeAll(async () => {
   } finally {
     await prisma.$disconnect();
   }
-});
+}
 
 async function uploadFile(
   filename: string,
-  content: string | Buffer = 'test content'
+  content: string = 'test content'
 ): Promise<Response> {
   const blob = new Blob([content], { type: 'application/octet-stream' });
   const formData = new FormData();
@@ -61,7 +58,18 @@ async function uploadFile(
   });
 }
 
-describe('E2E: POST /api/file/upload', () => {
+// Check if server is running before describing tests
+const serverRunning = await checkServerRunning();
+if (!serverRunning) {
+  console.log('⚠️  E2E tests skipped: Backend server not running');
+  console.log('   To run E2E tests, start the server with: cd server && pnpm run dev');
+}
+
+describe.skipIf(!serverRunning)('E2E: POST /api/file/upload', () => {
+  beforeAll(async () => {
+    await setupAuthToken();
+  });
+
   test('rejects unauthenticated request', async () => {
     const blob = new Blob(['data']);
     const formData = new FormData();

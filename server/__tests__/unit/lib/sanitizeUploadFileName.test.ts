@@ -1,5 +1,5 @@
-import { describe, test, expect } from 'bun:test';
-import { sanitizeUploadFileName } from '../../../lib/files';
+import { describe, test, expect } from 'vitest';
+import { sanitizeUploadFileName } from '../../../lib/utils/sanitize';
 
 describe('sanitizeUploadFileName', () => {
   test('passes through simple ASCII filenames unchanged', () => {

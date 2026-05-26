@@ -11,7 +11,9 @@
   "scripts": {
     "dev": "cd app && pnpm run tauri dev",
     "build:web": "turbo run build:web",
-    "test": "turbo run test",
+    "test": "vitest --run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest --coverage",
     "start:server:production": "ncp dist/public server/public && cd server && pnpm run start",
     "clean": "turbo run clean && rm -rf node_modules",
     "dev:backend": "dotenv turbo run dev --filter=@blinko/backend",
@@ -27,14 +29,21 @@
     "build:blinko:types": "tsc -p tsconfig.blinko.json"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/lru-cache": "^7.10.10",
+    "@vitest/coverage-v8": "^4.1.7",
+    "@vitest/ui": "^4.1.7",
     "concurrently": "^9.1.2",
     "dotenv-cli": "^7.4.2",
     "eslint": "^8.56.0",
+    "happy-dom": "^20.9.0",
     "prettier": "^3.2.5",
     "turbo": "latest",
     "typescript": "^5.1.6",
     "vite-plugin-pwa": "^1.0.0",
+    "vitest": "^4.1.7",
     "workbox-window": "^7.3.0"
   },
   "engines": {

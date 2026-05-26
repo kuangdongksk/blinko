@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll } from 'bun:test';
+import { describe, it, expect, beforeAll } from 'vitest';
 
 const MINIMAX_API_KEY = process.env.MINIMAX_API_KEY;
 const MINIMAX_BASE_URL = 'https://api.minimax.io/v1';
