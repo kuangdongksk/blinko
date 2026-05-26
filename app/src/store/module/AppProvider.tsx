@@ -10,7 +10,7 @@ export const AppProvider = observer(({ children }: { children?: React.ReactNode 
         const Component: any = store.provider;
         return <Component rootStore={rootStore} key={store.sid} />;
       })}
-      {children && children}
+      {children && <>{children}</>}
     </>
   )
 })

@@ -18,6 +18,22 @@ import { AiProvider, AiSettingStore, ModelCapabilities } from '@/store/aiSetting
 
 // Utility function to format test connection results
 const formatTestResults = (result: any, t: (key: string) => string): string => {
+  // Check overall success first
+  if (!result?.success) {
+    // Collect errors from failed capabilities
+    const errors: string[] = [];
+    if (result?.capabilities?.inference?.error) {
+      errors.push(`Inference: ${result.capabilities.inference.error}`);
+    }
+    if (result?.capabilities?.embedding?.error) {
+      errors.push(`Embedding: ${result.capabilities.embedding.error}`);
+    }
+    if (result?.capabilities?.audio?.error) {
+      errors.push(`Audio: ${result.capabilities.audio.error}`);
+    }
+    return `${t('check-connect-error')}: ${errors.join('; ') || t('unknown-error')}`;
+  }
+
   const details: string[] = [];
 
   if (result?.capabilities?.inference?.success) {
@@ -285,11 +301,16 @@ export default observer(function ProviderCard({ provider }: ProviderCardProps) {
                                     providerId: model.providerId,
                                     modelKey: model.modelKey,
                                     capabilities: model.capabilities
+                                  }).then((result) => {
+                                    if (!result.success) {
+                                      throw new Error(formatTestResults(result, t));
+                                    }
+                                    return result;
                                   }),
                                   {
                                     loading: t('loading'),
                                     success: (result: any) => formatTestResults(result, t),
-                                    error: (error: any) => `${t('check-connect-error')}: ${error.message}`,
+                                    error: (error: any) => error.message || `${t('check-connect-error')}`,
                                   }
                                 );
                               }}
@@ -354,11 +375,16 @@ export default observer(function ProviderCard({ provider }: ProviderCardProps) {
                                   providerId: model.providerId,
                                   modelKey: model.modelKey,
                                   capabilities: model.capabilities
+                                }).then((result) => {
+                                  if (!result.success) {
+                                    throw new Error(formatTestResults(result, t));
+                                  }
+                                  return result;
                                 }),
                                 {
                                   loading: t('loading'),
                                   success: (result: any) => formatTestResults(result, t),
-                                  error: (error: any) => `${t('check-connect-error')}: ${error.message}`,
+                                  error: (error: any) => error.message || `${t('check-connect-error')}`,
                                 }
                               );
                             }}

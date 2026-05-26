@@ -20,9 +20,9 @@ import {
   Together,
   LangChain,
   LlamaIndex,
-  Alibaba
+  Alibaba,
+  Minimax
 } from '@lobehub/icons';
-import { Icon } from '@/components/Common/Iconify/icons';
 
 // Provider Icon Component
 interface ProviderIconProps {
@@ -168,7 +168,7 @@ const MODEL_ICON_MAP: Array<{
   // MiniMax models
   {
     keywords: ['minimax'],
-    icon: OpenAI
+    icon: Minimax.Color
   },
   // LangChain models
   {
