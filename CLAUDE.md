@@ -11,7 +11,7 @@ Blinko is an open-source, self-hosted note-taking application with AI-powered fe
 - **Frontend**: React 18, TypeScript, Vite, TailwindCSS, Tauri (for desktop apps)
 - **Backend**: Node.js, Express, tRPC, Prisma ORM
 - **Database**: PostgreSQL
-- **Package Manager**: Bun (v1.2.8+)
+- **Package Manager**: pnpm (v9.15.0+)
 - **Build Tool**: Turbo (monorepo management)
 - **AI**: Multiple AI providers (OpenAI, Anthropic, Google, Azure, Ollama, etc.)
 
@@ -36,35 +36,35 @@ blinko/
 
 ### Setup & Installation
 ```bash
-bun install                # Install dependencies
-bun run prisma:generate    # Generate Prisma client
-bun run prisma:migrate:dev # Run database migrations
+pnpm install                # Install dependencies
+pnpm run prisma:generate    # Generate Prisma client
+pnpm run prisma:migrate:dev # Run database migrations
 ```
 
 ### Development
 ```bash
-bun run dev                # Run Tauri desktop app in development
-bun run dev:backend        # Run backend server only
-bun run dev:frontend       # Run frontend only
-bun run prisma:studio      # Open Prisma Studio for database management
+pnpm run dev                # Run Tauri desktop app in development
+pnpm run dev:backend        # Run backend server only
+pnpm run dev:frontend       # Run frontend only
+pnpm run prisma:studio      # Open Prisma Studio for database management
 ```
 
 ### Building
 ```bash
-bun run build:web          # Build web application
-bun run tauri:desktop:build # Build desktop application
-bun run tauri:android:build # Build Android application
+pnpm run build:web          # Build web application
+pnpm run tauri:desktop:build # Build desktop application
+pnpm run tauri:android:build # Build Android application
 ```
 
 ### Database
 ```bash
-bun run prisma:migrate:deploy # Deploy migrations to production
-bun run seed               # Seed database with initial data
+pnpm run prisma:migrate:deploy # Deploy migrations to production
+pnpm run seed               # Seed database with initial data
 ```
 
 ### Testing & Linting
 ```bash
-bun run test               # Run tests (if configured)
+pnpm run test               # Run tests (if configured)
 ```
 
 ## Architecture & Key Components
@@ -127,21 +127,21 @@ docker-compose -f docker-compose.prod.yml up -d
 ```
 
 ### Manual Deployment
-1. Build the application: `bun run build:web`
-2. Run migrations: `bun run prisma:migrate:deploy`
-3. Start the server: `bun run start`
+1. Build the application: `pnpm run build:web`
+2. Run migrations: `pnpm run prisma:migrate:deploy`
+3. Start the server: `pnpm run start`
 
 ## Port Configuration
 - Frontend/Full App: 1111 (default)
 - Backend API: Same port (integrated with Vite Express)
 
 ## Mobile Development (Tauri)
-- Android development: `bun run tauri:android:dev`
+- Android development: `pnpm run tauri:android:dev`
 - iOS support through Tauri configuration
 - Custom plugin in `/app/tauri-plugin-blinko/`
 
 ## Key Dependencies Notes
-- Uses Bun as package manager and runtime
-- Requires Node.js >= 20.0.0
+- Uses pnpm as package manager
+- Requires Node.js >= 20.0.0 and pnpm >= 9.0.0
 - PostgreSQL database required
 - Tauri requires Rust toolchain for desktop builds

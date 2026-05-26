@@ -5,6 +5,12 @@
 import fs from 'fs';
 import path from 'path';
 import { iconToSVG } from '@iconify/utils';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+// Create __dirname equivalent for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Always include these icons even if they're not detected by scanning
 const ALWAYS_INCLUDE_ICONS = [

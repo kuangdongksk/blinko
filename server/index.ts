@@ -3,8 +3,14 @@ import cors from 'cors';
 import path from 'path';
 import zlib from 'zlib';
 import fs from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 import authRoutes from './routerExpress/auth';
 import { configureSession } from './routerExpress/auth/config';
+
+// Create __dirname equivalent for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // pg-boss job scheduling
 import { getPgBoss, stopPgBoss } from './lib/pgBoss';

@@ -2,6 +2,12 @@ import swaggerJSDoc from 'swagger-jsdoc';
 import { generateOpenApiDocument } from 'trpc-to-openapi';
 import { appRouter } from './routerTrpc/_app';
 import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+// Create __dirname equivalent for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const trpcOpenApiDocument = generateOpenApiDocument(appRouter, {
   title: 'Blinko TRPC API',

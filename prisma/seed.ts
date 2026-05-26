@@ -4,6 +4,12 @@ import { promises as fs } from 'fs';
 import { randomBytes, pbkdf2 } from 'crypto';
 import * as path from 'path';
 import { FontSeed, systemDefaultFont, cdnFonts } from './defaultFonts';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+// Create __dirname equivalent for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 export async function hashPassword(password: string): Promise<string> {
   return new Promise((resolve, reject) => {
