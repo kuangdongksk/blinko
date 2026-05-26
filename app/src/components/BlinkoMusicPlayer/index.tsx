@@ -61,6 +61,7 @@ export const BlinkoMusicPlayer = observer(() => {
     <AnimatePresence mode="wait">
       {musicManager.showMiniPlayer && currentTrack && (
         <motion.div
+          key="mini-player"
           initial={{ y: -100, x: isPc ? "-50%" : 0 }}
           animate={{ y: 0, x: "-50%" }}
           exit={{ y: -100, x: "-50%" }}

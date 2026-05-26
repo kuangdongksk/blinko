@@ -248,6 +248,7 @@ export const BasicSetting = observer(() => {
         <AnimatePresence>
           {store.showToken && (
             <motion.div
+              key="token-display"
               initial={{ height: 0, opacity: 0, scale: 0.95 }}
               animate={{
                 height: "auto",
