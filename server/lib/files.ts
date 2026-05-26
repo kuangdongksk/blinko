@@ -13,6 +13,9 @@ import pathIsInside from 'path-is-inside';
 import sanitizeFilename from 'sanitize-filename';
 import { sanitizeUploadFileName } from './utils/sanitize';
 
+// Re-export utility function for backward compatibility
+export { sanitizeUploadFileName };
+
 export class FileService {
   /**
    * Validates and sanitizes a file path to prevent path traversal attacks
