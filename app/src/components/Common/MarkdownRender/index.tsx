@@ -156,7 +156,7 @@ export const MarkdownRender = observer(({ content = '', onChange, isShareMode, l
                   );
                 }
               }
-              return <p><HighlightTags text={children} /></p>;
+              return <div><HighlightTags text={children} /></div>;
             },
             code: ({ node, className, children, ...props }) => {
               const match = /language-(\w+)/.exec(className || '');
