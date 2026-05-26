@@ -200,10 +200,10 @@ jobs:
         run: |
           echo "NODE_OPTIONS=--max-old-space-size=4096" >> $GITHUB_ENV
 
-      - name: Install bun
-        uses: oven-sh/setup-bun@v1
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
         with:
-          bun-version: latest
+          version: 9.15.0
 
       - name: Install Rust Stable
         uses: dtolnay/rust-toolchain@stable
@@ -221,14 +221,14 @@ jobs:
         with:
           path: |
             **/node_modules
-          key: ${{ runner.os }}-modules-${{ hashFiles('**/bun.lockb', '**/package-lock.json') }}
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/pnpm-lock.yaml', '**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-modules-
 
       - name: Install Dependencies
         run: |
-          bun install
-          cd app && bun install
+          pnpm install
+          cd app && pnpm install
 
 
       # Copy CUDA config for CUDA builds (with installer checks)
@@ -243,7 +243,7 @@ jobs:
         run: |
           cd app
           echo "Starting Windows ${{ matrix.variant }} build..."
-          ../node_modules/.bin/tauri build --no-bundle ${{ matrix.features }}
+          pnpm run tauri build --no-bundle ${{ matrix.features }}
           echo "Windows ${{ matrix.variant }} build completed successfully!"
           echo "Build artifacts location: src-tauri/target/release/"
           Get-ChildItem src-tauri/target/release/

@@ -1,10 +1,13 @@
 # Build Stage
-FROM oven/bun:1.2.8 AS builder
+FROM node:20-alpine AS builder
 
 # Add Build Arguments
 ARG USE_MIRROR=false
 
 WORKDIR /app
+
+# Install pnpm
+RUN npm install -g pnpm@9.15.0
 
 # Set Sharp environment variables to speed up ARM installation
 ENV SHARP_IGNORE_GLOBAL_LIBVIPS=1
@@ -21,7 +24,7 @@ COPY . .
 # Configure Mirror Based on USE_MIRROR Parameter
 RUN if [ "$USE_MIRROR" = "true" ]; then \
         echo "Using Taobao Mirror to Install Dependencies" && \
-        echo '{ "install": { "registry": "https://registry.npmmirror.com" } }' > .bunfig.json; \
+        npm config set registry https://registry.npmmirror.com; \
     else \
         echo "Using Default Mirror to Install Dependencies"; \
     fi
@@ -31,15 +34,15 @@ RUN if [ "$(uname -m)" = "aarch64" ] || [ "$(uname -m)" = "arm64" ]; then \
         echo "Detected ARM architecture, installing sharp platform-specific dependencies..." && \
         mkdir -p /tmp/sharp-cache && \
         export SHARP_CACHE_DIRECTORY=/tmp/sharp-cache && \
-        bun install --platform=linux --arch=arm64 sharp@0.34.1 --no-save --unsafe-perm || \
-        bun install --force @img/sharp-linux-arm64 --no-save; \
+        pnpm add --platform=linux --arch=arm64 sharp@0.34.1 --no-save --unsafe-perm || \
+        pnpm add --force @img/sharp-linux-arm64 --no-save; \
     fi
 
 # Install Dependencies and Build App
-RUN bun install --unsafe-perm
-RUN bunx prisma generate
-RUN bun run build:web
-RUN bun run build:seed
+RUN pnpm install --unsafe-perm
+RUN pnpm dlx prisma generate
+RUN pnpm run build:web
+RUN pnpm run build:seed
 
 RUN printf '#!/bin/sh\necho "Current Environment: $NODE_ENV"\nnpx prisma migrate deploy\nnode server/seed.js\nnode server/index.js\n' > start.sh && \
     chmod +x start.sh
@@ -102,17 +105,18 @@ RUN if [ "$(uname -m)" = "aarch64" ] || [ "$(uname -m)" = "arm64" ]; then \
 
 # Install dependencies with --ignore-scripts to skip native compilation
 RUN echo "Installing additional dependencies..." && \
-    npm install @node-rs/crc32 lightningcss sharp@0.34.1 prisma@5.21.1 && \
-    npm install -g prisma@5.21.1 && \
-    npm install sqlite3@5.1.7 && \
-    npm install llamaindex @langchain/community@0.3.40 && \
-    npm install @libsql/client @libsql/core && \
-    npx prisma generate && \
+    npm install -g pnpm@9.15.0 && \
+    pnpm add @node-rs/crc32 lightningcss sharp@0.34.1 prisma@5.21.1 && \
+    pnpm add -g prisma@5.21.1 && \
+    pnpm add sqlite3@5.1.7 && \
+    pnpm add llamaindex @langchain/community@0.3.40 && \
+    pnpm add @libsql/client @libsql/core && \
+    pnpm dlx prisma generate && \
     # find / -type d -name "onnxruntime-*" -exec rm -rf {} + 2>/dev/null || true && \
-    # npm cache clean --force && \
+    # pnpm store prune && \
     rm -rf /tmp/* && \
     apk del python3 py3-setuptools make g++ gcc libc-dev linux-headers && \
-    rm -rf /var/cache/apk/* /root/.npm /root/.cache
+    rm -rf /var/cache/apk/* /root/.npm /root/.cache /root/.local/share/pnpm
 
 # Expose Port (Adjust According to Actual Application)
 EXPOSE 1111

@@ -4,19 +4,18 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "cd ../server && bun run dev",
-    "build": "bun run build:web",
-    "build:no-pwa": "cross-env DISABLE_PWA=true NODE_OPTIONS=\"--max-old-space-size=4096\" bun run build:web",
-    "icon": "bun run tauri icon",
-    "build:iconify:icons": "bun run src/components/Common/Iconify/buildIcons.js",
+    "dev": "cd ../server && pnpm run dev",
+    "build": "pnpm run build:web",
+    "build:no-pwa": "cross-env DISABLE_PWA=true NODE_OPTIONS=\"--max-old-space-size=4096\" pnpm run build:web",
+    "icon": "pnpm run tauri icon",
+    "build:iconify:icons": "node src/components/Common/Iconify/buildIcons.js",
     "build:web": "NODE_OPTIONS=\"--max-old-space-size=4096\" vite build",
     "tauri": "tauri",
     "tauri:dev": "RUST_BACKTRACE=1 tauri dev",
     "tauri:build:desktop:local": "tauri build --no-bundle",
     "tauri:android:dev": "tauri android dev --host",
     "tauri:android:build": "tauri android build",
-    "tauri:desktop:build": "tauri build",
-    "svg2vectordrawable": "bun add svg2vectordrawable"
+    "tauri:desktop:build": "tauri build"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

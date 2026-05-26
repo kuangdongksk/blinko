@@ -4,9 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "bun --env-file ../.env --watch index.ts",
-    "build:web": "bun esbuild.config.ts",
-    "start": "cross-env NODE_ENV=production bun --env-file ../.env ../dist/index.js"
+    "dev": "node dev.js",
+    "build:web": "tsx esbuild.config.ts",
+    "start": "cross-env NODE_ENV=production node start.js"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^1.2.10",
@@ -117,7 +117,6 @@
     "@types/request-ip": "^0.0.41",
     "@types/ws": "^8.5.10",
     "@types/yauzl-promise": "^4.0.1",
-    "bun-types": "latest",
     "esbuild": "^0.25.3",
     "esbuild-node-externals": "^1.18.0",
     "eslint": "^8.56.0",
@@ -126,6 +125,7 @@
     "prettier": "^3.2.5",
     "prisma": "5.22.0",
     "tsup": "^8.4.0",
+    "tsx": "^4.19.0",
     "typescript": "^5.1.6"
   }
 }

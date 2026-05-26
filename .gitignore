@@ -10,6 +10,7 @@ yarn-error.log
 .env
 package-lock.json
 yarn.lock
+bun.lockb
 *.tsbuildinfo
 .scannerwork
 .tsbuildinfo
