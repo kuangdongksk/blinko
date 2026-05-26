@@ -7,10 +7,14 @@ import path from 'path';
 import { iconToSVG } from '@iconify/utils';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import { createRequire } from 'module';
 
 // Create __dirname equivalent for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
+// Create require function for ES modules
+const require = createRequire(import.meta.url);
 
 // Always include these icons even if they're not detected by scanning
 const ALWAYS_INCLUDE_ICONS = [
@@ -151,8 +155,37 @@ export interface IconCollection {
       
       // Load icon data from Iconify JSON
       try {
-        const fullIconsPath = require.resolve(`@iconify/json/json/${collection}.json`);
-        const iconsData = JSON.parse(fs.readFileSync(fullIconsPath, 'utf8'));
+        // Find the icon collection directory by checking common paths
+        const possiblePaths = [
+          // Try @iconify/json package first (contains all collections)
+          path.join(__dirname, `../../../../../node_modules/.pnpm/@iconify-json@*/node_modules/@iconify/json/json/${collection}.json`),
+          path.join(__dirname, `../../../../../node_modules/@iconify/json/json/${collection}.json`),
+          // Try from app directory with @iconify/json
+          path.join(__dirname, `../../../../node_modules/.pnpm/@iconify-json@*/node_modules/@iconify/json/json/${collection}.json`),
+          path.join(__dirname, `../../../../node_modules/@iconify/json/json/${collection}.json`),
+          // Fallback to individual packages
+          path.join(__dirname, `../../../../../node_modules/.pnpm/@iconify-json+${collection}@*/node_modules/@iconify-json/${collection}/icons.json`),
+          path.join(__dirname, `../../../../../node_modules/@iconify-json/${collection}/icons.json`),
+          path.join(__dirname, `../../../../node_modules/.pnpm/@iconify-json+${collection}@*/node_modules/@iconify-json/${collection}/icons.json`),
+          path.join(__dirname, `../../../../node_modules/@iconify-json/${collection}/icons.json`),
+        ];
+
+        let iconsDataPath = null;
+        for (const possiblePath of possiblePaths) {
+          // Use glob to find matching files
+          const { glob } = require('glob');
+          const matches = glob.sync(possiblePath);
+          if (matches.length > 0) {
+            iconsDataPath = matches[0];
+            break;
+          }
+        }
+
+        if (!iconsDataPath) {
+          throw new Error(`Could not find icon collection for ${collection}`);
+        }
+
+        const iconsData = JSON.parse(fs.readFileSync(iconsDataPath, 'utf8'));
         
         // Create a new icon data object
         const iconSet = {
@@ -187,6 +220,7 @@ export const ${variableName}: IconCollection = ${JSON.stringify(iconSet, null, 2
   }
   
   // Add Icon component code
+  const collectionNames = Object.keys(iconsByCollection).map(c => c.replace(/-/g, '_'));
   output += `
 // Icon component Props interface
 interface IconProps {
@@ -211,20 +245,20 @@ const parseIconName = (iconName: string): { prefix: string; name: string } => {
 // Get icon data
 const getIconData = (iconName: string) => {
   const { prefix, name } = parseIconName(iconName);
-  const collectionKey = prefix.replace(/-/g, '_') as keyof typeof collections;
-  
-  // All icon collections
-  const collections = {
-${Object.keys(iconsByCollection).map(c => `    ${c.replace(/-/g, '_')},`).join('\n')}
+  const collectionKey = prefix.replace(/-/g, '_');
+
+  // All available icon collections
+  const collections: Record<string, IconCollection> = {
+${Object.keys(iconsByCollection).map(c => `    '${c.replace(/-/g, '_')}': ${c.replace(/-/g, '_')},`).join('\n')}
   };
-  
+
   const collection = collections[collectionKey];
-  
+
   if (!collection || !collection.icons || !collection.icons[name]) {
     console.warn(\`Icon "\${name}" not found in "\${prefix}" collection\`);
     return null;
   }
-  
+
   return {
     body: collection.icons[name].body,
     width: collection.icons[name].width || collection.width || 16,
