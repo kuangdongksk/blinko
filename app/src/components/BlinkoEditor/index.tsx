@@ -145,7 +145,7 @@ export const BlinkoEditor = observer(({ mode, onSended, onHeightChange, isInDial
       isSendLoading={blinko.upsertNote.loading.value}
       bottomSlot={
         isCreateMode ? <div className='text-xs text-ignore ml-2'>Drop to upload files</div> :
-          blinko.curSelectedNote?.createdAt ? <div className='text-xs text-desc'>{dayjs(blinko.curSelectedNote.createdAt).format("YYYY-MM-DD hh:mm:ss")}</div> : null
+          blinko.curSelectedNote?.createdAt ? <div className='text-xs text-desc'>{dayjs(blinko.curSelectedNote.createdAt).format("YYYY-MM-DD hh:mm:ss")}</div> : <></>
       }
       onSend={async ({ files, references, noteType, metadata }) => {
         if (isCreateMode) {

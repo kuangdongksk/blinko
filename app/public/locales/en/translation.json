@@ -839,5 +839,18 @@
   "custom-title": "Custom Title",
   "custom-title-tip": "Used for browser tab and sign-in title. Leave empty to use the default title.",
   "custom-title-placeholder": "Enter a title (1-50 chars)",
-  "login-with": "Login With {{title}}"
+  "login-with": "Login With {{title}}",
+  "articles": "Articles",
+  "create-article": "Create Article",
+  "untitled-article": "Untitled Article",
+  "article-title": "Article Title",
+  "article-description": "Article Description",
+  "article-created": "Article created",
+  "article-updated": "Article updated",
+  "article-deleted": "Article deleted",
+  "note-added-to-article": "Note added to article",
+  "note-removed-from-article": "Note removed from article",
+  "sections": "sections",
+  "add-note": "Add Note",
+  "search-notes": "Search Notes"
 }

@@ -37,6 +37,7 @@ const ReviewPage = lazy(() => import('./pages/review'));
 const SettingsPage = lazy(() => import('./pages/settings'));
 const PluginPage = lazy(() => import('./pages/plugin'));
 const AnalyticsPage = lazy(() => import('./pages/analytics'));
+const ArticlePage = lazy(() => import('./pages/article'));
 const AllPage = lazy(() => import('./pages/all'));
 const OAuthCallbackPage = lazy(() => import('./pages/oauth-callback'));
 const DetailPage = lazy(() => import('./pages/detail'));
@@ -239,6 +240,7 @@ function AppRoutes() {
             <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
             <Route path="/plugin" element={<ProtectedRoute><PluginPage /></ProtectedRoute>} />
             <Route path="/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
+            <Route path="/article" element={<ProtectedRoute><ArticlePage /></ProtectedRoute>} />
             <Route path="/all" element={<ProtectedRoute><AllPage /></ProtectedRoute>} />
             <Route path="/oauth-callback" element={<OAuthCallbackPage />} />
             <Route path="/detail/*" element={<ProtectedRoute><DetailPage /></ProtectedRoute>} />

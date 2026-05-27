@@ -16,6 +16,28 @@ export enum NoteType {
   'NOTE',
   'TODO'
 }
+
+// Article types
+export interface ArticleSection {
+  noteId: number;
+  order: number;
+  note?: Note;
+}
+
+export interface Article {
+  id: string;
+  title: string;
+  description?: string;
+  sections: ArticleSection[];
+  createdAt: Date;
+  updatedAt: Date;
+  isPublished: boolean;
+}
+
+export interface ArticleMetadata {
+  articleId?: string;
+  sectionOrder?: number;
+}
 export type PublicUser = NonNullable<RouterOutput['users']['publicUserList']>[0]
 export function toNoteTypeEnum(v?: number, fallback: NoteType = NoteType.BLINKO): NoteType {
   switch (v) {

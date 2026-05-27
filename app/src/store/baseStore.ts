@@ -37,6 +37,11 @@ export class BaseStore implements Store {
       icon: 'hugeicons:analytics-01',
     },
     {
+      title: 'article',
+      href: '/article',
+      icon: 'solar:document-text-outline',
+    },
+    {
       title: 'resources',
       href: '/resources',
       icon: 'solar:database-linear',

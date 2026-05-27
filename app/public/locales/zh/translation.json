@@ -856,5 +856,18 @@
   "custom-title": "自定义标题",
   "custom-title-tip": "用于浏览器标签页和登录页标题，留空将使用默认标题。",
   "custom-title-placeholder": "请输入标题（1-50个字符）",
-  "login-with": "登录 {{title}}"
+  "login-with": "登录 {{title}}",
+  "articles": "文章",
+  "create-article": "创建文章",
+  "untitled-article": "未命名文章",
+  "article-title": "文章标题",
+  "article-description": "文章描述",
+  "article-created": "文章已创建",
+  "article-updated": "文章已更新",
+  "article-deleted": "文章已删除",
+  "note-added-to-article": "笔记已添加到文章",
+  "note-removed-from-article": "笔记已从文章移除",
+  "sections": "节",
+  "add-note": "添加笔记",
+  "search-notes": "搜索笔记"
 }
