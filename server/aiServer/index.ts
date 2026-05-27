@@ -279,14 +279,19 @@ export class AiService {
         role: 'user',
         content: question,
       });
-      console.log(conversations, 'conversations');
+      console.log("🚀 ~ AiService ~ completions ~ conversations:", conversations)
+
       const runtimeContext = new RuntimeContext();
       runtimeContext.set('accountId', Number(ctx.id));
+      console.log("🚀 ~ AiService ~ completions ~ runtimeContext:", runtimeContext)
+      
       const agent = await AiModelFactory.BaseChatAgent({ withTools, withOnlineSearch: withOnline });
       const result = await agent.stream(conversations, { runtimeContext });
+      console.log("🚀 ~ AiService ~ completions ~ result:", result)
+      
       return { result, notes: ragNote };
     } catch (error) {
-      console.log(error);
+      console.log("🚀 ~ AiService ~ completions ~ error:", error)
       throw new Error(error);
     }
   }

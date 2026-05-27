@@ -13,6 +13,21 @@ import { api } from '@/lib/trpc';
 
 // Utility function to format test connection results
 const formatTestResults = (result: any, t: (key: string) => string): string => {
+  // Check overall success first
+  if (!result?.success) {
+    const errors: string[] = [];
+    if (result?.capabilities?.inference?.error) {
+      errors.push(`Inference: ${result.capabilities.inference.error}`);
+    }
+    if (result?.capabilities?.embedding?.error) {
+      errors.push(`Embedding: ${result.capabilities.embedding.error}`);
+    }
+    if (result?.capabilities?.audio?.error) {
+      errors.push(`Audio: ${result.capabilities.audio.error}`);
+    }
+    return `${t('check-connect-error')}: ${errors.join('; ') || t('unknown-error')}`;
+  }
+
   const details: string[] = [];
 
   if (result?.capabilities?.inference?.success) {
@@ -158,27 +173,27 @@ export default observer(function ModelDialogContent({ model }: ModelDialogConten
   const testModelConnection = async () => {
     if (!editingModel.modelKey || !selectedProvider || !editingModel.capabilities) return;
 
-    try {
-      RootStore.Get(ToastPlugin).promise(
-        api.ai.testConnect.mutate({
-          providerId: selectedProvider.id,
-          modelKey: editingModel.modelKey,
-          capabilities: editingModel.capabilities
-        }),
-        {
-          loading: t('loading'),
-          success: (result: any) => {
-            console.log(result);
-            return formatTestResults(result, t);
-          },
-          error: (error: any) => {
-            return `${t('check-connect-error')}: ${error.message}`;
-          },
+    RootStore.Get(ToastPlugin).promise(
+      api.ai.testConnect.mutate({
+        providerId: selectedProvider.id,
+        modelKey: editingModel.modelKey,
+        capabilities: editingModel.capabilities
+      }).then((result) => {
+        if (!result.success) {
+          throw new Error(formatTestResults(result, t));
         }
-      );
-    } catch (error) {
-      console.error('Test connection failed:', error);
-    }
+        return result;
+      }),
+      {
+        loading: t('loading'),
+        success: (result: any) => {
+          return formatTestResults(result, t);
+        },
+        error: (error: any) => {
+          return error.message || `${t('check-connect-error')}`;
+        },
+      }
+    );
   };
 
   const handleSaveModel = async () => {

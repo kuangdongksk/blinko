@@ -347,7 +347,7 @@ export default observer(function ProviderCard({ provider }: ProviderCardProps) {
                       /* Desktop Layout */
                       <>
                         {/* Model Icon */}
-                        <div className="flex-shrink-0">
+                        <div className="shrink-0">
                           <ModelIcon modelName={model.modelKey} className="w-6 h-6" />
                         </div>
 

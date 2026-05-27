@@ -331,6 +331,8 @@ export class AiModelFactory {
   }
   static async BaseChatAgent({ withTools = true, withOnlineSearch = false, withMcpTools = true }: { withTools?: boolean; withOnlineSearch?: boolean; withMcpTools?: boolean }) {
     const provider = await AiModelFactory.GetProvider();
+    console.log("🚀 ~ AiModelFactory ~ BaseChatAgent ~ provider:", provider)
+    
     let tools: Record<string, any> = {};
     if (withTools) {
       tools = {
