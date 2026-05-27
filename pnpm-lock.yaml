@@ -59,7 +59,7 @@ importers:
         version: 3.8.3
       turbo:
         specifier: latest
-        version: 2.9.14
+        version: 2.9.15
       typescript:
         specifier: ^5.1.6
         version: 5.6.3
@@ -113,7 +113,7 @@ importers:
         version: 2.48.0(@babel/core@7.29.7)(@types/mdast@4.0.4)(@types/react-dom@18.3.7(@types/react@18.3.29))(@types/react@18.3.29)(antd@5.29.3(date-fns@3.6.0)(luxon@3.7.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(framer-motion@11.18.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(micromark-util-types@2.0.2)(micromark@4.0.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@mastra/voice-openai':
         specifier: ^0.11.5
-        version: 0.11.12(@mastra/core@0.13.1(encoding@0.1.13)(openapi-types@12.1.3)(react@18.3.1)(zod@4.4.3))(ws@8.21.0)(zod@4.4.3)
+        version: 0.11.12(@mastra/core@0.13.1(encoding@0.1.13)(openapi-types@12.1.3)(react@18.3.1)(zod-openapi@5.4.6(zod@4.4.3))(zod@4.4.3))(ws@8.21.0)(zod@4.4.3)
       '@react-spring/three':
         specifier: ^9.7.5
         version: 9.7.5(@react-three/fiber@8.18.0(@types/react@18.3.29)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.174.0))(react@18.3.1)(three@0.174.0)
@@ -279,6 +279,9 @@ importers:
       react-photo-view:
         specifier: ^1.2.7
         version: 1.2.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-resizable-panels:
+        specifier: ^4.11.2
+        version: 4.11.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-router-dom:
         specifier: ^7.5.0
         version: 7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -456,7 +459,7 @@ importers:
         version: 1.0.6(@mastra/core@0.13.1(encoding@0.1.13)(openapi-types@12.1.3)(react@18.3.1)(zod-openapi@5.4.6(zod@4.4.3))(zod@4.4.3))(ai@4.3.16(react@18.3.1)(zod@4.4.3))(encoding@0.1.13)
       '@mastra/voice-openai':
         specifier: ^0.11.5
-        version: 0.11.12(@mastra/core@0.13.1(encoding@0.1.13)(openapi-types@12.1.3)(react@18.3.1)(zod@4.4.3))(ws@8.21.0)(zod@4.4.3)
+        version: 0.11.12(@mastra/core@0.13.1(encoding@0.1.13)(openapi-types@12.1.3)(react@18.3.1)(zod-openapi@5.4.6(zod@4.4.3))(zod@4.4.3))(ws@8.21.0)(zod@4.4.3)
       '@modelcontextprotocol/sdk':
         specifier: ^1.18.1
         version: 1.29.0(@cfworker/json-schema@4.1.1)(zod@4.4.3)
@@ -3540,6 +3543,7 @@ packages:
 
   '@libsql/linux-arm64-gnu@0.5.8':
     resolution: {integrity: sha512-6HHZlPbMu+cmCJafg/dwOcWFMu07hTB5teMKU5ke66kqeWLRBnOs5/DnZGVz6q0k+Z4L4UTRbdrnCklR3GmvFg==}
+    cpu: [arm64]
     os: [linux]
 
   '@libsql/linux-arm64-musl@0.5.29':
@@ -3549,6 +3553,7 @@ packages:
 
   '@libsql/linux-arm64-musl@0.5.8':
     resolution: {integrity: sha512-QGhZadKk3gvrDHa63U7xQrsqET/43E6L7/15oh7I+SINl8meoZAJNTJNYfOUmPM2lPPfNDgr46v4p5ggo6su0A==}
+    cpu: [arm64]
     os: [linux]
 
   '@libsql/linux-x64-gnu@0.5.29':
@@ -3558,6 +3563,7 @@ packages:
 
   '@libsql/linux-x64-gnu@0.5.8':
     resolution: {integrity: sha512-HUWxOvLE5W287O/vaHWFpZMqaaebEBZvcUqJJ/E+IcC9kmKc6GqDW+fJkfPfosrpGyPNbYDj0w9pIcck0l/oeA==}
+    cpu: [x64]
     os: [linux]
 
   '@libsql/linux-x64-musl@0.5.29':
@@ -3567,6 +3573,7 @@ packages:
 
   '@libsql/linux-x64-musl@0.5.8':
     resolution: {integrity: sha512-hfhkPwqzFroU01xUB7ZXFw3bP+jqcGolGLyhEkeh/Rsoune0ucm1KPrU2tqTBqQP4a7lL0nSL1A37nfjIO61Hw==}
+    cpu: [x64]
     os: [linux]
 
   '@libsql/win32-x64-msvc@0.5.29':
@@ -6276,33 +6283,33 @@ packages:
     peerDependencies:
       typescript: '>=5.7.2'
 
-  '@turbo/darwin-64@2.9.14':
-    resolution: {integrity: sha512-t7QiPflaEyBE4oayeZtSmu4mEfjgIrcNlNNl1z1dmIVPqEdtA7+CfTf8d7KXsOGPh6aNgWjKxyvQg9uGfDQF+A==}
+  '@turbo/darwin-64@2.9.15':
+    resolution: {integrity: sha512-nnDo9R1Df+s2x6jxlERtbg7xRpuicf8p4J2krcnjeaMBt3q9V41pGXa4t9YM2Y4ozozsVJ+CH405CJUrWIQK4Q==}
     cpu: [x64]
     os: [darwin]
 
-  '@turbo/darwin-arm64@2.9.14':
-    resolution: {integrity: sha512-d23147mC9BsCPA9mJ0h/ubcpbRgcJBXbcG3+Vq7YLhjz3IXuvQsJ1UXH8f4MD76ZjJ4m/E4aRdJV+MW88CDfbw==}
+  '@turbo/darwin-arm64@2.9.15':
+    resolution: {integrity: sha512-fDSx56oqoFuS+yUQw7hqjQTkjrSLdMcplhuLC8HcSkWC6YrpwEmUUYsPYHPxy4ALvLxnmPQuk6XoSD8tdkjP+g==}
     cpu: [arm64]
     os: [darwin]
 
-  '@turbo/linux-64@2.9.14':
-    resolution: {integrity: sha512-P3ZKB5tuUDdDQWuAsACGUR1qv9W7BNWxdxqVJ0kZNuNNPRaVYTPPikLcp79+GiEcW3npsR+KyP38lnQiBc5aSA==}
+  '@turbo/linux-64@2.9.15':
+    resolution: {integrity: sha512-/bmxn+x/xE+oh0VzEXt/zf2zsORAYZPrL3db5/VrXzYt0Z4wxcvffwJBGlSfla2smfS1BLGBiyWldJlWDXJVXA==}
     cpu: [x64]
     os: [linux]
 
-  '@turbo/linux-arm64@2.9.14':
-    resolution: {integrity: sha512-ZRTlzcUMrrPv9ZuDzRF9n60Ym13bKeG9jDB8WjxyLhWNzV+AJQN+zdpIk3NJYf2zQsGUm1mNar2P0elRzLw25g==}
+  '@turbo/linux-arm64@2.9.15':
+    resolution: {integrity: sha512-cbOaDe1ijz5As+mimOOHgmRMolZZZO7miNBHHp5xdiYMm2Q/Dwu1JVLx/Kw4s7xjocG/oEoHrpHrxpEAIEfNiw==}
     cpu: [arm64]
     os: [linux]
 
-  '@turbo/windows-64@2.9.14':
-    resolution: {integrity: sha512-exanwN6sIduZwykYeiTQj8kCmOhazP5WOz3bvXMcYtjhL6Z3iRWLewKrXCBq0bqwSP3iBMb/AerRCnHI4lx46A==}
+  '@turbo/windows-64@2.9.15':
+    resolution: {integrity: sha512-/Fzm7afui7uK7dFBwrTXKuDhBBTiHk5I+hMVAPMR7cqQyDo2norCNUsN9PdNuYcmzYbhSOxzz498wQYvSAz29w==}
     cpu: [x64]
     os: [win32]
 
-  '@turbo/windows-arm64@2.9.14':
-    resolution: {integrity: sha512-fVdCsnmYoKICsycbWuuGp6Jvi51/3G/UluFWuAUCvR8PIW5IJkAk5BM9UF8PSm0Q2IphWHFZjYEgjHsh3B9y/g==}
+  '@turbo/windows-arm64@2.9.15':
+    resolution: {integrity: sha512-fOHEsLcqVdFXLw2ApWv4gxwfHzkUnpo9rHGml+9+dyHj148m/Bc+556kEvb5+4u6prI1LMd8zEZE2HcO6Jn2VQ==}
     cpu: [arm64]
     os: [win32]
 
@@ -9622,6 +9629,7 @@ packages:
 
   libsql@0.5.29:
     resolution: {integrity: sha512-8lMP8iMgiBzzoNbAPQ59qdVcj6UaE/Vnm+fiwX4doX4Narook0a4GPKWBEv+CR8a1OwbfkgL18uBfBjWdF0Fzg==}
+    cpu: [x64, arm64, wasm32, arm]
     os: [darwin, linux, win32]
 
   lightningcss-android-arm64@1.32.0:
@@ -11780,6 +11788,12 @@ packages:
     resolution: {integrity: sha512-z6F7K9bV85EfseRCp2bzrpyQ0Gkw1uLoCel9XBVWPg/TjRj94SkJzUTGfOa4bs7iJvBWtQG0Wq7wnI0syw3EBQ==}
     engines: {node: '>=0.10.0'}
 
+  react-resizable-panels@4.11.2:
+    resolution: {integrity: sha512-+kfFbDZ8mygc7g0vxOcDzCVGuwiIUOnILqPoUHo6/uP+Mmyx6HzZU+kj1aOPDlktXuobYbr6BtQekvJwHRX4Eg==}
+    peerDependencies:
+      react: ^18.0.0 || ^19.0.0
+      react-dom: ^18.0.0 || ^19.0.0
+
   react-rnd@10.5.3:
     resolution: {integrity: sha512-s/sIT3pGZnQ+57egijkTp9mizjIWrJz68Pq6yd+F/wniFY3IriML18dUXnQe/HP9uMiJ+9MAp44hljG99fZu6Q==}
     peerDependencies:
@@ -12867,8 +12881,8 @@ packages:
   tunnel-agent@0.6.0:
     resolution: {integrity: sha512-McnNiV1l8RYeY8tBgEpuodCC1mLUdbSN+CYBL7kJsJNInOP8UjDDEwdk6Mw60vdLLrr5NHKZhMAOSrR2NZuQ+w==}
 
-  turbo@2.9.14:
-    resolution: {integrity: sha512-BQqXRr4UoWI3UPFrtznCLykYHxwxWh53iCB57x092jPMjIlW1wnm3N895g5irpiXmnxUhREBB0n6+y8BHhs4nw==}
+  turbo@2.9.15:
+    resolution: {integrity: sha512-VpKvD9Z0Hu/xrGUAYX1wnhfpqv835wIwGqeKfulvBPTOcDap0E3nFwyzCAVV85fB1sBcBDEfTP+7FSW7GzwWSQ==}
     hasBin: true
 
   type-check@0.4.0:
@@ -17183,7 +17197,7 @@ snapshots:
       zod-from-json-schema: 0.0.5
       zod-to-json-schema: 3.25.2(zod@4.4.3)
 
-  '@mastra/voice-openai@0.11.12(@mastra/core@0.13.1(encoding@0.1.13)(openapi-types@12.1.3)(react@18.3.1)(zod@4.4.3))(ws@8.21.0)(zod@4.4.3)':
+  '@mastra/voice-openai@0.11.12(@mastra/core@0.13.1(encoding@0.1.13)(openapi-types@12.1.3)(react@18.3.1)(zod-openapi@5.4.6(zod@4.4.3))(zod@4.4.3))(ws@8.21.0)(zod@4.4.3)':
     dependencies:
       '@mastra/core': 0.13.1(encoding@0.1.13)(openapi-types@12.1.3)(react@18.3.1)(zod-openapi@5.4.6(zod@4.4.3))(zod@4.4.3)
       openai: 5.23.2(ws@8.21.0)(zod@4.4.3)
@@ -20561,22 +20575,22 @@ snapshots:
     dependencies:
       typescript: 5.6.3
 
-  '@turbo/darwin-64@2.9.14':
+  '@turbo/darwin-64@2.9.15':
     optional: true
 
-  '@turbo/darwin-arm64@2.9.14':
+  '@turbo/darwin-arm64@2.9.15':
     optional: true
 
-  '@turbo/linux-64@2.9.14':
+  '@turbo/linux-64@2.9.15':
     optional: true
 
-  '@turbo/linux-arm64@2.9.14':
+  '@turbo/linux-arm64@2.9.15':
     optional: true
 
-  '@turbo/windows-64@2.9.14':
+  '@turbo/windows-64@2.9.15':
     optional: true
 
-  '@turbo/windows-arm64@2.9.14':
+  '@turbo/windows-arm64@2.9.15':
     optional: true
 
   '@tweenjs/tween.js@23.1.3': {}
@@ -27009,6 +27023,11 @@ snapshots:
 
   react-refresh@0.17.0: {}
 
+  react-resizable-panels@4.11.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+
   react-rnd@10.5.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       re-resizable: 6.11.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -28335,14 +28354,14 @@ snapshots:
     dependencies:
       safe-buffer: 5.2.1
 
-  turbo@2.9.14:
+  turbo@2.9.15:
     optionalDependencies:
-      '@turbo/darwin-64': 2.9.14
-      '@turbo/darwin-arm64': 2.9.14
-      '@turbo/linux-64': 2.9.14
-      '@turbo/linux-arm64': 2.9.14
-      '@turbo/windows-64': 2.9.14
-      '@turbo/windows-arm64': 2.9.14
+      '@turbo/darwin-64': 2.9.15
+      '@turbo/darwin-arm64': 2.9.15
+      '@turbo/linux-64': 2.9.15
+      '@turbo/linux-arm64': 2.9.15
+      '@turbo/windows-64': 2.9.15
+      '@turbo/windows-arm64': 2.9.15
 
   type-check@0.4.0:
     dependencies:

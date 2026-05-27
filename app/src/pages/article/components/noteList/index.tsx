@@ -1,3 +1,4 @@
+import { BlinkoCard } from "@/components/BlinkoCard";
 import { BlinkoEditor } from "@/components/BlinkoEditor";
 import { Icon } from "@/components/Common/Iconify/icons";
 import { LoadingAndEmpty } from "@/components/Common/LoadingAndEmpty";
@@ -7,7 +8,7 @@ import { BlinkoStore } from "@/store/blinkoStore";
 import { RootStore } from "@/store";
 import { Button, Divider, Input } from "@heroui/react";
 import { observer } from "mobx-react-lite";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
 interface NoteListProps {
@@ -15,126 +16,119 @@ interface NoteListProps {
   articleId: string | null;
 }
 
-export const NoteList = observer(({ articleStore, articleId }: NoteListProps) => {
-  const { t } = useTranslation();
-  const [showAddNote, setShowAddNote] = useState(false);
-  const blinkoStore = RootStore.Get(BlinkoStore);
+export const NoteList = observer(
+  ({ articleStore, articleId }: NoteListProps) => {
+    const { t } = useTranslation();
 
-  // Filter available notes based on search
-  const currentSections = articleStore.currentArticle?.sections || [];
-  const filteredAvailableNotes = articleStore.availableNotes.filter(
-    (note) =>
-      !currentSections.some((s) => s.noteId === note.id) &&
-      note.content
-        ?.toLowerCase()
-        .includes(articleStore.searchQuery.toLowerCase()),
-  );
+    const blinkoStore = RootStore.Get(BlinkoStore);
 
-  const handleAddNote = async (noteId: number) => {
-    if (articleId) {
-      await articleStore.addNoteToArticle.call(articleId, noteId);
-    }
-  };
+    // Filter available notes based on search
+    const currentSections = articleStore.currentArticle?.sections || [];
+    const searchQuery = articleStore.searchQuery.toLowerCase().trim();
 
-  const handleCreateNote = async () => {
-    // Reload available notes to get the newly created note
-    await articleStore.loadAvailableNotes.call();
+    const filteredAvailableNotes = articleStore.availableNotes
+      .filter((note) => !currentSections.some((s) => s.noteId === note.id))
+      .filter((note) => {
+        // If search query is empty, show all notes (will be limited to 20 below)
+        if (!searchQuery) return true;
 
-    // Get the latest note (first in the list)
-    if (articleStore.availableNotes.length > 0) {
-      const latestNote = articleStore.availableNotes[0];
-      if (latestNote?.id && articleId) {
-        await articleStore.addNoteToArticle.call(articleId, latestNote.id);
-        setShowAddNote(false);
+        // Search in content (safe null handling)
+        const content = note.content || "";
+        const contentMatch = content.toLowerCase().includes(searchQuery);
+
+        // Search in tags (safe access to nested structure)
+        const tagMatch =
+          note.tags?.some((tagItem: any) => {
+            const tagName = tagItem?.tag?.name || "";
+            return tagName.toLowerCase().includes(searchQuery);
+          }) || false;
+
+        return contentMatch || tagMatch;
+      })
+      .slice(0, searchQuery ? undefined : 20); // Limit to 20 notes when no search query
+
+    const handleAddNote = async (noteId: number) => {
+      if (articleId) {
+        await articleStore.addNoteToArticle.call(articleId, noteId);
       }
-    }
-  };
-
-  // Reload available notes when blinkoStore updates
-  useEffect(() => {
-    const loadNotes = () => {
-      articleStore.loadAvailableNotes.call();
     };
 
-    // Load initially
-    loadNotes();
+    const handleCreateNote = async () => {
+      // Reload available notes to get the newly created note
+      await articleStore.loadAvailableNotes.call();
 
-    // Watch for blinko updates
-    const interval = setInterval(() => {
-      if (blinkoStore.updateTicker > 0) {
-        loadNotes();
+      // Get the latest note (first in the list)
+      if (articleStore.availableNotes.length > 0) {
+        const latestNote = articleStore.availableNotes[0];
+        if (latestNote?.id && articleId) {
+          await articleStore.addNoteToArticle.call(articleId, latestNote.id);
+        }
       }
-    }, 1000);
+    };
 
-    return () => clearInterval(interval);
-  }, [blinkoStore.updateTicker]);
+    // Reload available notes when blinkoStore updates or search query changes
+    useEffect(() => {
+      const loadNotes = () => {
+        // Always load notes to ensure we have the latest data
+        articleStore.loadAvailableNotes.call();
+      };
 
-  return (
-    <div className="w-80 p-4 flex flex-col bg-default-50">
-      <div className="mb-4">
-        <Input
-          placeholder={t("search-notes")}
-          value={articleStore.searchQuery}
-          onChange={(e) => articleStore.setSearchQuery(e.target.value)}
-          startContent={<Icon icon="mdi:magnify" width="20" height="20" />}
-          variant="bordered"
-        />
-      </div>
+      // Load initially
+      loadNotes();
 
-      <div className="mb-4 flex gap-2">
-        <Button
-          size="sm"
-          color="primary"
-          className="flex-1"
-          onPress={() => setShowAddNote(!showAddNote)}
-        >
-          <Icon icon="mdi:plus" width="16" height="16" className="mr-1" />
-          {t("add-note")}
-        </Button>
-      </div>
+      // Watch for blinko updates
+      const interval = setInterval(() => {
+        if (blinkoStore.updateTicker > 0) {
+          loadNotes();
+        }
+      }, 1000);
 
-      {showAddNote && (
-        <>
-          <div className="mb-2 p-2 bg-background rounded-lg">
-            <BlinkoEditor
-              mode="create"
-              onSended={handleCreateNote}
-              withoutOutline={true}
-            />
-          </div>
-          <Divider className="mb-4" />
-        </>
-      )}
+      return () => clearInterval(interval);
+    }, [blinkoStore.updateTicker]);
 
-      <ScrollArea className="flex-1">
-        {articleStore.isLoadingNotes ? (
-          <LoadingAndEmpty isLoading={true} isEmpty={false} />
-        ) : filteredAvailableNotes.length === 0 ? (
-          <LoadingAndEmpty isLoading={false} isEmpty={true} />
-        ) : (
-          <div className="space-y-2">
-            {filteredAvailableNotes.map((note) => (
-              <div
-                key={note.id}
-                className="p-3 bg-background rounded-lg hover:bg-default-100 cursor-pointer transition-colors"
-                onClick={() => note.id && handleAddNote(note.id)}
-              >
+    return (
+      <div className="p-4 flex flex-col bg-default-50">
+        <div className="mb-4">
+          <Input
+            placeholder={t("search-notes")}
+            value={articleStore.searchQuery}
+            onChange={(e) => articleStore.setSearchQuery(e.target.value)}
+            startContent={<Icon icon="mdi:magnify" width="20" height="20" />}
+            variant="bordered"
+          />
+        </div>
+
+        <div className="mb-2 p-2 bg-background rounded-lg">
+          <BlinkoEditor
+            mode="create"
+            onSended={handleCreateNote}
+            withoutOutline={true}
+          />
+        </div>
+        <Divider className="mb-4" />
+
+        <ScrollArea className="flex-1">
+          {articleStore.isLoadingNotes ? (
+            <LoadingAndEmpty isLoading={true} isEmpty={false} />
+          ) : filteredAvailableNotes.length === 0 ? (
+            <LoadingAndEmpty isLoading={false} isEmpty={true} />
+          ) : (
+            <div className="space-y-3">
+              {filteredAvailableNotes.map((note) => (
                 <div
-                  className="text-sm line-clamp-2"
-                  dangerouslySetInnerHTML={{
-                    __html: note.content || "",
-                  }}
-                />
-                <div className="text-xs text-default-400 mt-1">
-                  {new Date(note.createdAt || "").toLocaleDateString()}
+                  key={note.id}
+                  className="cursor-pointer hover:scale-[1.02] transition-transform"
+                  onClick={() => note.id && handleAddNote(note.id)}
+                >
+                  <BlinkoCard blinkoItem={note} />
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </ScrollArea>
-    </div>
-  );
-});
+              ))}
+            </div>
+          )}
+        </ScrollArea>
+      </div>
+    );
+  },
+);
 
 export default NoteList;

@@ -278,10 +278,9 @@ export class ArticleStore implements Store {
       try {
         const notes = await api.notes.list.mutate({
           page: 1,
-          size: 50,
+          size: 100,
           searchText,
           isRecycle: false,
-          type: 1, // NOTE type only
         });
 
         this.availableNotes = notes;
