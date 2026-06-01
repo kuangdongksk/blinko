@@ -62,23 +62,17 @@ export class ArticleStore implements Store {
         throw new Error('Article not found');
       }
 
-      // Fetch all notes for this article
-      const notes = await api.notes.list.mutate({
-        page: 1,
-        size: 100,
-        isRecycle: false,
-      });
+      // Fetch notes by their IDs directly
+      const notes = articleConfig.sectionNoteIds.length > 0
+        ? await api.notes.listByIds.mutate({ ids: articleConfig.sectionNoteIds })
+        : [];
 
-      const filteredNotes = notes.filter(note =>
-        articleConfig.sectionNoteIds.includes(note.id!)
-      );
-
-      // Create sections with order
+      // Create sections with order, preserving the original sectionNoteIds order
       const sections: ArticleSection[] = articleConfig.sectionNoteIds
         .map((noteId, index) => ({
           noteId,
           order: index,
-          note: filteredNotes.find(n => n.id === noteId),
+          note: notes.find((n: any) => n.id === noteId),
         }))
         .filter(section => section.note !== undefined);
 
