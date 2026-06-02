@@ -1,5 +1,5 @@
 "use client";
-import { PromisePageState, PromiseState } from './standard/PromiseState';
+import { PromiseState } from './standard/PromiseState';
 import { Store } from './standard/base';
 import { ToastPlugin } from './module/Toast/Toast';
 import { RootStore } from './root';
@@ -7,68 +7,56 @@ import i18n from '@/lib/i18n';
 import { api } from '@/lib/trpc';
 import { Article, ArticleSection, type Note } from '@shared/lib/types';
 import { makeAutoObservable } from 'mobx';
-import { StorageListState } from './standard/StorageListState';
-
-interface ArticleConfig {
-  id: string;
-  title: string;
-  description?: string;
-  sectionNoteIds: number[];
-  createdAt: string;
-  updatedAt: string;
-  isPublished: boolean;
-}
 
 export class ArticleStore implements Store {
   sid = 'ArticleStore';
 
-  // Current article being viewed/edited
   currentArticle: Article | null = null;
-
-  // List of all articles
-  articlesList = new StorageListState<ArticleConfig>({
-    key: 'articles',
-  });
-
-  // Search query for note list
+  articlesList: any[] = [];
   searchQuery: string = '';
-
-  // Available notes that can be added to article
   availableNotes: Note[] = [];
-
-  // Loading states
   isLoadingNotes = false;
 
   constructor() {
     makeAutoObservable(this);
   }
 
-  // Get articles list from storage
-  get articles(): ArticleConfig[] {
-    return this.articlesList.list || [];
+  get articles() {
+    return this.articlesList;
   }
 
-  // Get current article sections
   get currentSections(): ArticleSection[] {
     return this.currentArticle?.sections || [];
   }
 
+  // List all articles
+  listArticles = new PromiseState({
+    eventKey: 'listArticles',
+    function: async () => {
+      const articles = await api.articles.list.query();
+      this.articlesList = articles;
+      return articles;
+    }
+  });
+
   // Load article by id
   loadArticle = new PromiseState({
     eventKey: 'loadArticle',
-    function: async (articleId: string) => {
-      const articleConfig = this.articles.find(a => a.id === articleId);
-      if (!articleConfig) {
+    function: async (articleId: number) => {
+      const articleData = await api.articles.getById.query({ id: articleId });
+      if (!articleData) {
         throw new Error('Article not found');
       }
 
-      // Fetch notes by their IDs directly
-      const notes = articleConfig.sectionNoteIds.length > 0
-        ? await api.notes.listByIds.mutate({ ids: articleConfig.sectionNoteIds })
+      const sectionNoteIds: number[] = Array.isArray(articleData.sectionNoteIds)
+        ? articleData.sectionNoteIds as number[]
         : [];
 
-      // Create sections with order, preserving the original sectionNoteIds order
-      const sections: ArticleSection[] = articleConfig.sectionNoteIds
+      const notes = sectionNoteIds.length > 0
+        ? await api.notes.listByIds.mutate({ ids: sectionNoteIds })
+        : [];
+
+      const sections: ArticleSection[] = sectionNoteIds
         .map((noteId, index) => ({
           noteId,
           order: index,
@@ -77,13 +65,13 @@ export class ArticleStore implements Store {
         .filter(section => section.note !== undefined);
 
       this.currentArticle = {
-        id: articleConfig.id,
-        title: articleConfig.title,
-        description: articleConfig.description,
+        id: articleData.id,
+        title: articleData.title,
+        description: articleData.description ?? undefined,
         sections,
-        createdAt: new Date(articleConfig.createdAt),
-        updatedAt: new Date(articleConfig.updatedAt),
-        isPublished: articleConfig.isPublished,
+        createdAt: new Date(articleData.createdAt),
+        updatedAt: new Date(articleData.updatedAt),
+        isPublished: articleData.isPublished,
       };
 
       return this.currentArticle;
@@ -94,19 +82,9 @@ export class ArticleStore implements Store {
   createArticle = new PromiseState({
     eventKey: 'createArticle',
     function: async (params: { title: string; description?: string }) => {
-      const newArticle: ArticleConfig = {
-        id: `article_${Date.now()}`,
-        title: params.title,
-        description: params.description,
-        sectionNoteIds: [],
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        isPublished: false,
-      };
-
-      this.articlesList.push(newArticle);
+      const newArticle = await api.articles.create.mutate(params);
       RootStore.Get(ToastPlugin).success(i18n.t('article-created'));
-
+      await this.listArticles.call();
       return newArticle;
     }
   });
@@ -114,152 +92,72 @@ export class ArticleStore implements Store {
   // Update article
   updateArticle = new PromiseState({
     eventKey: 'updateArticle',
-    function: async (articleId: string, params: Partial<ArticleConfig>) => {
-      const articles = this.articles;
-      const index = articles.findIndex(a => a.id === articleId);
+    function: async (articleId: number, params: { title?: string; description?: string | null; isPublished?: boolean }) => {
+      const updated = await api.articles.update.mutate({ id: articleId, ...params });
+      RootStore.Get(ToastPlugin).success(i18n.t('article-updated'));
 
-      if (index !== -1) {
-        const updatedArticle = {
-          ...articles[index],
-          ...params,
-          updatedAt: new Date().toISOString(),
+      if (this.currentArticle?.id === articleId) {
+        this.currentArticle = {
+          ...this.currentArticle,
+          title: updated.title,
+          description: updated.description ?? undefined,
+          updatedAt: new Date(updated.updatedAt),
         };
-
-        // Update storage list
-        this.articlesList.remove(index);
-        this.articlesList.push(updatedArticle);
-
-        // Update current article if it's the same
-        if (this.currentArticle?.id === articleId) {
-          this.currentArticle = {
-            ...this.currentArticle,
-            title: updatedArticle.title,
-            description: updatedArticle.description,
-            updatedAt: new Date(updatedArticle.updatedAt),
-          };
-        }
-
-        RootStore.Get(ToastPlugin).success(i18n.t('article-updated'));
-        return updatedArticle;
       }
 
-      throw new Error('Article not found');
+      await this.listArticles.call();
+      return updated;
     }
   });
 
   // Add note to article
   addNoteToArticle = new PromiseState({
     eventKey: 'addNoteToArticle',
-    function: async (articleId: string, noteId: number) => {
-      const articles = this.articles;
-      const index = articles.findIndex(a => a.id === articleId);
-
-      if (index !== -1) {
-        const article = articles[index];
-
-        if (!article.sectionNoteIds.includes(noteId)) {
-          const updatedArticle = {
-            ...article,
-            sectionNoteIds: [...article.sectionNoteIds, noteId],
-            updatedAt: new Date().toISOString(),
-          };
-
-          this.articlesList.remove(index);
-          this.articlesList.push(updatedArticle);
-
-          // Reload article if it's current
-          if (this.currentArticle?.id === articleId) {
-            await this.loadArticle.call(articleId);
-          }
-
-          RootStore.Get(ToastPlugin).success(i18n.t('note-added-to-article'));
-          return updatedArticle;
-        }
+    function: async (articleId: number, noteId: number) => {
+      await api.articles.addNote.mutate({ articleId, noteId });
+      RootStore.Get(ToastPlugin).success(i18n.t('note-added-to-article'));
+      if (this.currentArticle?.id === articleId) {
+        await this.loadArticle.call(articleId);
       }
-
-      throw new Error('Article not found or note already exists');
+      await this.listArticles.call();
     }
   });
 
   // Remove note from article
   removeNoteFromArticle = new PromiseState({
     eventKey: 'removeNoteFromArticle',
-    function: async (articleId: string, noteId: number) => {
-      const articles = this.articles;
-      const index = articles.findIndex(a => a.id === articleId);
-
-      if (index !== -1) {
-        const article = articles[index];
-        const updatedArticle = {
-          ...article,
-          sectionNoteIds: article.sectionNoteIds.filter(id => id !== noteId),
-          updatedAt: new Date().toISOString(),
-        };
-
-        this.articlesList.remove(index);
-        this.articlesList.push(updatedArticle);
-
-        // Reload article if it's current
-        if (this.currentArticle?.id === articleId) {
-          await this.loadArticle.call(articleId);
-        }
-
-        RootStore.Get(ToastPlugin).success(i18n.t('note-removed-from-article'));
-        return updatedArticle;
+    function: async (articleId: number, noteId: number) => {
+      await api.articles.removeNote.mutate({ articleId, noteId });
+      RootStore.Get(ToastPlugin).success(i18n.t('note-removed-from-article'));
+      if (this.currentArticle?.id === articleId) {
+        await this.loadArticle.call(articleId);
       }
-
-      throw new Error('Article not found');
+      await this.listArticles.call();
     }
   });
 
   // Reorder sections in article
   reorderSections = new PromiseState({
     eventKey: 'reorderSections',
-    function: async (articleId: string, sectionNoteIds: number[]) => {
-      const articles = this.articles;
-      const index = articles.findIndex(a => a.id === articleId);
-
-      if (index !== -1) {
-        const updatedArticle = {
-          ...articles[index],
-          sectionNoteIds,
-          updatedAt: new Date().toISOString(),
-        };
-
-        this.articlesList.remove(index);
-        this.articlesList.push(updatedArticle);
-
-        // Reload article if it's current
-        if (this.currentArticle?.id === articleId) {
-          await this.loadArticle.call(articleId);
-        }
-
-        return updatedArticle;
+    function: async (articleId: number, sectionNoteIds: number[]) => {
+      await api.articles.reorder.mutate({ articleId, sectionNoteIds });
+      if (this.currentArticle?.id === articleId) {
+        await this.loadArticle.call(articleId);
       }
-
-      throw new Error('Article not found');
+      await this.listArticles.call();
     }
   });
 
   // Delete article
   deleteArticle = new PromiseState({
     eventKey: 'deleteArticle',
-    function: async (articleId: string) => {
-      const articles = this.articles;
-      const index = articles.findIndex(a => a.id === articleId);
-
-      if (index !== -1) {
-        this.articlesList.remove(index);
-
-        if (this.currentArticle?.id === articleId) {
-          this.currentArticle = null;
-        }
-
-        RootStore.Get(ToastPlugin).success(i18n.t('article-deleted'));
-        return true;
+    function: async (articleId: number) => {
+      await api.articles.delete.mutate({ id: articleId });
+      if (this.currentArticle?.id === articleId) {
+        this.currentArticle = null;
       }
-
-      throw new Error('Article not found');
+      RootStore.Get(ToastPlugin).success(i18n.t('article-deleted'));
+      await this.listArticles.call();
     }
   });
 
@@ -268,7 +166,6 @@ export class ArticleStore implements Store {
     eventKey: 'loadAvailableNotes',
     function: async (searchText?: string) => {
       this.isLoadingNotes = true;
-
       try {
         const notes = await api.notes.list.mutate({
           page: 1,
@@ -276,7 +173,6 @@ export class ArticleStore implements Store {
           searchText,
           isRecycle: false,
         });
-
         this.availableNotes = notes;
         return notes;
       } finally {
@@ -285,12 +181,10 @@ export class ArticleStore implements Store {
     }
   });
 
-  // Set search query
   setSearchQuery(query: string) {
     this.searchQuery = query;
   }
 
-  // Clear current article
   clearCurrentArticle() {
     this.currentArticle = null;
   }

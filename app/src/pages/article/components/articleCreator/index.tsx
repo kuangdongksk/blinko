@@ -14,7 +14,7 @@ import { ArticleBlinkoEditor } from "../ArticleBlinkoEditor";
 
 interface ArticleCreatorProps {
   articleStore: ArticleStore;
-  articleId: string | null;
+  articleId: number | null;
 }
 
 export const ArticleCreator = observer(

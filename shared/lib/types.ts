@@ -25,7 +25,7 @@ export interface ArticleSection {
 }
 
 export interface Article {
-  id: string;
+  id: number;
   title: string;
   description?: string;
   sections: ArticleSection[];
@@ -35,7 +35,7 @@ export interface Article {
 }
 
 export interface ArticleMetadata {
-  articleId?: string;
+  articleId?: number;
   sectionOrder?: number;
 }
 export type PublicUser = NonNullable<RouterOutput['users']['publicUserList']>[0]

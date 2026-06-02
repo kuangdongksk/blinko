@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 
 interface ArticleHeaderProps {
   articleStore: ArticleStore;
-  articleId: string | null;
+  articleId: number | null;
 }
 
 const ArticleHeader = observer(

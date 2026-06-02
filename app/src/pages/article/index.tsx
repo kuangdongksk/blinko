@@ -14,15 +14,16 @@ const ArticlePage = observer(() => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const articleId = searchParams.get("id");
+  const articleIdStr = searchParams.get("id");
+  const articleId = articleIdStr ? Number(articleIdStr) : null;
 
   const articleStore = RootStore.Get(ArticleStore);
 
   useEffect(() => {
+    articleStore.listArticles.call();
     if (articleId) {
       articleStore.loadArticle.call(articleId);
     }
-    // Load available notes
     articleStore.loadAvailableNotes.call();
   }, [articleId]);
 

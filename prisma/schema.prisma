@@ -36,6 +36,7 @@ model accounts {
   conversations conversation[]
   sharedNotes   noteInternalShare[]
   aiScheduledTasks aiScheduledTask[]
+  articles        articles[]
 }
 
 model attachments {
@@ -344,4 +345,19 @@ model fonts {
   updatedAt   DateTime @updatedAt @db.Timestamptz(6)
 
   @@unique([name])
+}
+
+model articles {
+  id             Int      @id @default(autoincrement())
+  title          String   @default("未命名文章") @db.VarChar
+  description    String?  @db.Text
+  sectionNoteIds Json     @default("[]") @db.Json
+  isPublished    Boolean  @default(false)
+  accountId      Int?
+  createdAt      DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt      DateTime @updatedAt @db.Timestamptz(6)
+
+  account        accounts? @relation(fields: [accountId], references: [id])
+
+  @@index([accountId])
 }

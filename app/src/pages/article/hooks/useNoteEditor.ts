@@ -6,7 +6,7 @@ import { Note } from '@shared/lib/types';
 
 interface UseNoteEditorProps {
   articleStore: ArticleStore;
-  articleId: string | null;
+  articleId: number | null;
 }
 
 export const useNoteEditor = ({ articleStore, articleId }: UseNoteEditorProps) => {

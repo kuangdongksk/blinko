@@ -10,7 +10,7 @@ import { useTranslation } from "react-i18next";
 
 interface NoteListProps {
   articleStore: ArticleStore;
-  articleId: string | null;
+  articleId: number | null;
 }
 
 export const NoteList = observer(
